@@ -1,2 +1,2 @@
 # springboot-websocket-stomp-chat
-springboot + websocket + stomp + sockjs
+springboot-websocket-stomp-chat
