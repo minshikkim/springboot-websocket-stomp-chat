@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
+    <link rel="stylesheet" href="./style.css">
+    <title>index2</title>
+
+</head>
+<body>
+
+    <h1>set name : <input id="name" placeholder="please set your name"></h1>
+    <button id="connectBtn">접속하기</button>
+    <h3 id="helloConnectText" style="display:none" >접속에 성공하였습니다.</h3>
+    <h3>to : <input id="to" placeholder="to ..."></h3>
+    <input id="sendMsg"> <button id="sendMsgBtn">메시지 전송</button>
+    <ul id="chatUl">
+        <li>채팅내용~</li>
+    </ul>
+    <script>
+        const ul = document.getElementById('chatUl');
+        const helloTextH2 = document.getElementById('helloConnectText');
+        const name = document.getElementById('name');
+        const connectBtn = document.getElementById('connectBtn');
+        const sendBtn = document.getElementById('sendMsgBtn');
+        const message = document.getElementById('sendMsg');
+        const toUser = document.getElementById('to');
+
+
+        var stompClient = null;
+
+        sendBtn.addEventListener('click', ()=>{
+            send(toUser.value, message.value);
+        });
+        connectBtn.addEventListener('click', function (){
+            connect(name.value);
+        });
+
+
+        function connect(name){
+            console.log(name);
+            var socket = new SockJS('/chat'); // 해당 경로로 websocket 을 요청한다.
+            stompClient = Stomp.over(socket); // WebSocket 위에 Stomp를 얻는다.
+            stompClient.connect({}, function (frame){
+                console.log(frame);
+                // 연결 성공
+                helloTextH2.style.display = 'inline';
+                stompClient.send("/app/user", {}, JSON.stringify({"name" : name})); // 유저를 등록하기 위해 보냄
+                stompClient.subscribe("/topic/user/" + name, function (message){
+                    if(message != null){
+                        var id = JSON.parse(message.body).id;
+                        var msg = JSON.parse(message.body).message;
+                        addChatLine(id, msg, false);
+                    }
+
+                });
+            })
+        }
+        // connect();
+        /**
+         * 타켓팅 되는 유저에게 보냅니다.
+         */
+        function send(toUser, message, isMe){
+
+            var message = // 어떻게 보낼 지 메시지의 형태를 정합니다.
+                {
+                    "id" : name.value,
+                    "message" : message
+                }
+
+
+            addChatLine(message.id, message.message, true); // 내가 보내는 내용을 chat 창에 띄웁니다.
+            stompClient.send("/topic/user/" + toUser, {}, JSON.stringify(message)); // example , 경로가 "topic/user/minshik"인 녀석에게 메시지를 보냅니다.
+            // "topic/user/{id}" 로 매핑된 메소드 실행
+        }
+
+        function addChatLine(id, msg, isMe){
+            const li = document.createElement("li");
+            if(!isMe){
+                li.innerText = id + " : " + msg;
+            }else{
+                li.innerText = "나 : " + msg;
+            }
+            ul.appendChild(li);
+        }
+
+
+    </script>
+</body>
+</html>
