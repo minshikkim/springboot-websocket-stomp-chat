@@ -1,12 +1,15 @@
 package com.example.springchat.controllers;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Controller
 public class pageController {
-    @RequestMapping("/login")
-    public String signUp(){
+
+    @RequestMapping(value="/login")
+    public String login(){
         return "login";
     }
+
 }
