@@ -1,6 +1,5 @@
 package com.example.springchat.controllers;
 
-import com.example.springchat.model.HelloMessage;
 import com.example.springchat.model.Message;
 import com.example.springchat.model.User;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
